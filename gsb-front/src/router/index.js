@@ -4,66 +4,54 @@ import { useAuthStore } from '../stores/auth'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { 
-      path: '/login', 
-      name: 'login', 
-      component: () => import('../views/LoginView.vue'),
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue')
     },
     {
       path: '/',
       name: 'home',
       component: () => import('../views/HomeView.vue'),
-      meta: { requiresAuth: true },
-      children: [
-        {
-          path: '/frais',
-          name: 'Frais',
-          component: () => import('../views/Frais.vue'),
-          meta: { 
-            requiresAuth: true,
-            roles: ['ADMINISTRATEUR', 'VISITEUR_MEDICAL']
-          }
-        },
-        {
-          path: '/historique',
-          name: 'Historique',
-          component: () => import('../views/Historique.vue'),
-          meta: { 
-            requiresAuth: true,
-            roles: ['ADMINISTRATEUR', 'VISITEUR_MEDICAL']
-          }
-        },
-        {
-          path: '/employees',
-          name: 'Employees',
-          component: () => import('../views/Employees.vue'),
-          meta: { 
-            requiresAuth: true,
-            roles: ['ADMINISTRATEUR']
-          },
-        },
-        {
-          path: '/payments',
-          name: 'Payments',
-          component: () => import('../views/Payments.vue'),
-          meta: { 
-            requiresAuth: true,
-            roles: ['ADMINISTRATEUR', 'COMPTABLE']
-          },
-        },
-      ]
+      meta: { requiresAuth: true }
     },
-    { 
-      path: '/403', 
-      name: 'forbidden', 
-      component: () => import('../views/403.vue')
+    {
+      path: '/frais',
+      name: 'Frais',
+      component: () => import('../views/Frais.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: ['ADMINISTRATEUR', 'VISITEUR_MEDICAL']
+      }
     },
-    { 
-      path: '/:pathMatch(.*)*', 
-      name: '404', 
-      component: () => import('../views/404.vue') 
+    {
+      path: '/historique',
+      name: 'Historique',
+      component: () => import('../views/Historique.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: ['ADMINISTRATEUR', 'VISITEUR_MEDICAL']
+      }
+    },
+    {
+      path: '/employees',
+      name: 'Employees',
+      component: () => import('../views/Employees.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: ['ADMINISTRATEUR']
+      }
+    },
+    {
+      path: '/payments',
+      name: 'Payments',
+      component: () => import('../views/Payments.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: ['ADMINISTRATEUR', 'COMPTABLE']
+      }
     }
-  ],
+  ]
 })
 
 // Navigation guard avec Pinia
