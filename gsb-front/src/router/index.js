@@ -5,63 +5,61 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/login',
-      name: 'login',
-      component: () => import('../views/LoginView.vue')
-    },
-    {
       path: '/',
       name: 'home',
       component: () => import('../views/HomeView.vue'),
       meta: { requiresAuth: true }
     },
     {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue')
+    },
+    {
       path: '/frais',
-      name: 'Frais',
+      name: 'frais',
       component: () => import('../views/Frais.vue'),
       meta: {
         requiresAuth: true,
-        roles: ['ADMINISTRATEUR', 'VISITEUR_MEDICAL']
+        allowedRoles: ['VISITEUR_MEDICAL', 'ADMINISTRATEUR']
       }
     },
     {
       path: '/historique',
-      name: 'Historique',
+      name: 'historique',
       component: () => import('../views/Historique.vue'),
       meta: {
         requiresAuth: true,
-        roles: ['ADMINISTRATEUR', 'VISITEUR_MEDICAL']
+        allowedRoles: ['VISITEUR_MEDICAL', 'ADMINISTRATEUR']
       }
     },
     {
       path: '/employees',
-      name: 'Employees',
+      name: 'employees',
       component: () => import('../views/Employees.vue'),
       meta: {
         requiresAuth: true,
-        roles: ['ADMINISTRATEUR']
+        allowedRoles: ['ADMINISTRATEUR']
       }
     },
     {
       path: '/payments',
-      name: 'Payments',
+      name: 'payments',
       component: () => import('../views/Payments.vue'),
       meta: {
         requiresAuth: true,
-        roles: ['ADMINISTRATEUR', 'COMPTABLE']
+        allowedRoles: ['COMPTABLE', 'ADMINISTRATEUR']
       }
     }
   ]
 })
 
-// Navigation guard avec Pinia
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  console.log(`Navigation vers: ${to.path}`)
 
-  // Initialiser le store si nécessaire
-  if (!authStore.isAuthenticated) {
-    authStore.initializeStore()
+  // Si l'utilisateur va vers login et est déjà connecté
+  if (to.path === '/login' && authStore.isAuthenticated) {
+    return next('/')
   }
 
   // Si la route ne nécessite pas d'authentification
@@ -69,29 +67,18 @@ router.beforeEach(async (to, from, next) => {
     return next()
   }
 
-  // Vérification de l'authentification
-  if (!authStore.checkSession()) {
-    console.log("Non authentifié, redirection vers login")
-    return next('/login')
+  // Vérifie si l'utilisateur est authentifié
+  if (!authStore.isAuthenticated) {
+    authStore.initializeStore()
+    
+    if (!authStore.isAuthenticated) {
+      return next('/login')
+    }
   }
 
-  // Vérification des rôles
-  if (to.meta.roles) {
-    const userRole = authStore.getUserRole()
-    if (!to.meta.roles.includes(userRole)) {
-      console.log("Accès non autorisé pour ce rôle")
-      return next('/403')
-    }
-
-    // Gestion spéciale pour les visiteurs médicaux
-    if (userRole === 'VISITEUR_MEDICAL' && 
-       (to.name === 'Historique' || to.name === 'Frais')) {
-      const userId = authStore.getUserId()
-      return next({
-        ...to,
-        query: { ...to.query, userId: userId }
-      })
-    }
+  // Vérifie les rôles si nécessaire
+  if (to.meta.allowedRoles && !to.meta.allowedRoles.includes(authStore.user.role)) {
+    return next('/')
   }
 
   next()

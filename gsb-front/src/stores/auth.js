@@ -1,13 +1,17 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 export const useAuthStore = defineStore('auth', () => {
+  const router = useRouter()
   const user = ref(null)
   const isAuthenticated = ref(false)
   const BASE_URL = 'http://51.83.74.206:8000'
 
-  // Stocke la date de dernière connexion
-  const lastConnectionTime = ref(null)
+  // Computed properties
+  const userRole = computed(() => user.value?.role)
+  const userId = computed(() => user.value?.id)
+  const visiteurId = computed(() => user.value?.VIS_ID)
 
   const login = async (username, password) => {
     try {
@@ -25,32 +29,15 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       const data = await response.json()
-      console.log('Réponse du serveur:', data)
 
       if (data.succes) {
-        // Mise à jour des informations utilisateur
-        user.value = {
-          id: data.donnees.user.id,          // id de la table user
-          username: data.donnees.user.username,
-          role: data.donnees.user.role,      // VISITEUR_MEDICAL, COMPTABLE, ou ADMINISTRATEUR
-          VIS_ID: data.donnees.user.VIS_ID,  // peut être null
-          dteConnexion: data.donnees.user.dteConnexion // timestamp de dernière connexion
-        }
-        
-        // Mise à jour de l'authentification
-        isAuthenticated.value = true
-        lastConnectionTime.value = new Date().toISOString()
-        
-        // Sauvegarde en localStorage
-        localStorage.setItem('user', JSON.stringify(user.value))
-        localStorage.setItem('lastConnectionTime', lastConnectionTime.value)
-        
+        setUserData(data.donnees.user)
         return { success: true }
-      } else {
-        return { 
-          success: false, 
-          message: data.message || 'Identifiants incorrects'
-        }
+      }
+      
+      return { 
+        success: false, 
+        message: data.message || 'Identifiants incorrects'
       }
     } catch (error) {
       console.error('Erreur de connexion:', error)
@@ -61,71 +48,79 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const setUserData = (userData) => {
+    user.value = {
+      id: userData.id,
+      username: userData.username,
+      role: userData.role,
+      VIS_ID: userData.VIS_ID,
+      dteConnexion: new Date().toISOString()
+    }
+    isAuthenticated.value = true
+    saveToStorage()
+  }
+
   const logout = () => {
     user.value = null
     isAuthenticated.value = false
-    lastConnectionTime.value = null
-    localStorage.removeItem('user')
-    localStorage.removeItem('lastConnectionTime')
+    clearStorage()
+    router.push('/login')
+  }
+
+  const saveToStorage = () => {
+    localStorage.setItem('gsb_user', JSON.stringify(user.value))
+    localStorage.setItem('gsb_auth_time', new Date().toISOString())
+  }
+
+  const clearStorage = () => {
+    localStorage.removeItem('gsb_user')
+    localStorage.removeItem('gsb_auth_time')
   }
 
   const initializeStore = () => {
-    const storedUser = localStorage.getItem('user')
-    const storedLastConnection = localStorage.getItem('lastConnectionTime')
-    
-    if (storedUser) {
-      user.value = JSON.parse(storedUser)
-      lastConnectionTime.value = storedLastConnection
-      isAuthenticated.value = true
+    const storedUser = localStorage.getItem('gsb_user')
+    const authTime = localStorage.getItem('gsb_auth_time')
+
+    if (storedUser && authTime) {
+      // Session expire après 24h
+      const expirationTime = new Date(authTime).getTime() + (24 * 60 * 60 * 1000)
+      if (new Date().getTime() < expirationTime) {
+        user.value = JSON.parse(storedUser)
+        isAuthenticated.value = true
+        return true
+      }
+      clearStorage()
     }
+    return false
   }
 
-  const checkSession = () => {
-    return isAuthenticated.value && user.value !== null
-  }
-
-  const getUserRole = () => {
-    return user.value?.role || null
-  }
-
-  const getUserId = () => {
-    return user.value?.id || null
-  }
-
-  const getVisiteurId = () => {
-    return user.value?.VIS_ID || null
-  }
-
-  const getLastConnectionTime = () => {
-    return lastConnectionTime.value
-  }
-
-  const isVisiteurMedical = () => {
-    return user.value?.role === 'VISITEUR_MEDICAL'
-  }
-
-  const isComptable = () => {
-    return user.value?.role === 'COMPTABLE'
-  }
-
-  const isAdministrateur = () => {
-    return user.value?.role === 'ADMINISTRATEUR'
+  // Helpers pour les rôles
+  const checkRole = (allowedRoles) => {
+    if (!user.value) return false
+    return Array.isArray(allowedRoles) 
+      ? allowedRoles.includes(user.value.role)
+      : user.value.role === allowedRoles
   }
 
   return {
+    // State
     user,
     isAuthenticated,
-    lastConnectionTime,
+
+    // Computed
+    userRole,
+    userId,
+    visiteurId,
+
+    // Actions
     login,
     logout,
     initializeStore,
-    checkSession,
-    getUserRole,
-    getUserId,
-    getVisiteurId,
-    getLastConnectionTime,
-    isVisiteurMedical,
-    isComptable,
-    isAdministrateur
+    checkRole,
+
+    // Role checks
+    isVisiteurMedical: () => checkRole('VISITEUR_MEDICAL'),
+    isComptable: () => checkRole('COMPTABLE'),
+    isAdministrateur: () => checkRole('ADMINISTRATEUR')
   }
 })

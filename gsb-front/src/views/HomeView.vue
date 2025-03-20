@@ -1,279 +1,233 @@
+<!-- gsb-front/src/views/HomeView.vue -->
 <template>
-    <div class="home-container">
-      <div class="welcome-card" v-if="authStore.user">
-        <div class="profile-header">
-          <div class="avatar">
-            {{ getInitials() }}
-          </div>
+  <div class="home-container">
+    <div class="welcome-card">
+      <div class="profile-section">
+        <div class="avatar">
+          <span class="initials">{{ getInitials() }}</span>
+          <div class="status-badge" :class="roleClass"></div>
+        </div>
+        <div class="user-info">
           <h1>Bienvenue, {{ authStore.user.username }} !</h1>
+          <p class="role">{{ formatRole(authStore.user.role) }}</p>
         </div>
-  
-        <div class="info-grid">
-          <!-- Carte Rôle -->
-          <div class="info-card role">
-            <div class="icon">
-              <i class="fas fa-user-shield"></i>
-            </div>
-            <div class="info-content">
-              <h3>Rôle</h3>
-              <p>{{ formatRole(authStore.user.role) }}</p>
-            </div>
-          </div>
-  
-          <!-- Carte ID Visiteur -->
-          <div class="info-card visitor" v-if="authStore.user.VIS_ID">
-            <div class="icon">
-              <i class="fas fa-id-badge"></i>
-            </div>
-            <div class="info-content">
-              <h3>ID Visiteur</h3>
-              <p>{{ authStore.user.VIS_ID }}</p>
-            </div>
-          </div>
-  
-          <!-- Carte Dernière Connexion -->
-          <div class="info-card connection">
-            <div class="icon">
-              <i class="fas fa-clock"></i>
-            </div>
-            <div class="info-content">
-              <h3>Dernière Connexion</h3>
-              <p>{{ formatDate(authStore.user.dteConnexion) }}</p>
-            </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fas fa-calendar"></i>
+          <div class="stat-info">
+            <h3>Dernière Connexion</h3>
+            <p>{{ formatDate(authStore.user.dteConnexion) }}</p>
           </div>
         </div>
-  
-        <div class="action-buttons">
-          <button @click="handleLogout" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i>
-            Se déconnecter
-          </button>
+
+        <div class="stat-card" v-if="authStore.user.VIS_ID">
+          <i class="fas fa-id-badge"></i>
+          <div class="stat-info">
+            <h3>ID Visiteur</h3>
+            <p>{{ authStore.user.VIS_ID }}</p>
+          </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="quick-actions" v-if="authStore.isVisiteurMedical()">
+          <router-link to="/frais" class="action-button">
+            <i class="fas fa-plus-circle"></i>
+            Nouvelle note de frais
+          </router-link>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { useAuthStore } from '../stores/auth'
-  import { useRouter } from 'vue-router'
-  import { onMounted } from 'vue'
-  
-  const authStore = useAuthStore()
-  const router = useRouter()
-  
-  onMounted(() => {
-    if (!authStore.isAuthenticated) {
-      router.push('/login')
-    }
-  })
-  
-  const getInitials = () => {
-    return authStore.user.username.substring(0, 2).toUpperCase()
-  }
-  
-  const formatRole = (role) => {
-    const roleMap = {
-      'VISITEUR_MEDICAL': 'Visiteur Médical',
-      'COMPTABLE': 'Comptable',
-      'ADMINISTRATEUR': 'Administrateur'
-    }
-    return roleMap[role] || role
-  }
-  
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-  
-  const handleLogout = () => {
-    authStore.logout()
+  </div>
+</template>
+
+<script setup>
+import { useAuthStore } from '../stores/auth'
+import { useRouter } from 'vue-router'
+import { onMounted, computed } from 'vue'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+onMounted(() => {
+  if (!authStore.isAuthenticated) {
     router.push('/login')
   }
-  </script>
-  
-  <style scoped>
-  .home-container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+})
+
+const getInitials = () => {
+  return authStore.user.username.substring(0, 2).toUpperCase()
+}
+
+const formatRole = (role) => {
+  const roleMap = {
+    'VISITEUR_MEDICAL': 'Visiteur Médical',
+    'COMPTABLE': 'Comptable',
+    'ADMINISTRATEUR': 'Administrateur'
   }
-  
-  .welcome-card {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    width: 100%;
-    max-width: 800px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    animation: slideIn 0.6s ease-out;
+  return roleMap[role] || role
+}
+
+const roleClass = computed(() => {
+  const roles = {
+    'VISITEUR_MEDICAL': 'role-visitor',
+    'COMPTABLE': 'role-accountant',
+    'ADMINISTRATEUR': 'role-admin'
   }
-  
-  .profile-header {
+  return roles[authStore.user.role]
+})
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+</script>
+
+<style scoped>
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.welcome-card {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.avatar {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.initials {
+  color: white;
+  font-size: 2.5em;
+  font-weight: bold;
+}
+
+.status-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid white;
+}
+
+.role-visitor { background: #2ecc71; }
+.role-accountant { background: #3498db; }
+.role-admin { background: #e74c3c; }
+
+.user-info h1 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.role {
+  color: #7f8c8d;
+  font-size: 1.1em;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.stat-card {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-card i {
+  font-size: 1.5em;
+  color: #1e3c72;
+}
+
+.stat-info h3 {
+  color: #7f8c8d;
+  font-size: 0.9em;
+  margin-bottom: 0.3rem;
+}
+
+.stat-info p {
+  color: #2c3e50;
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+.quick-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.action-button {
+  background: #1e3c72;
+  color: white;
+  text-decoration: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.action-button:hover {
+  background: #2a5298;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-section {
+    flex-direction: column;
     text-align: center;
-    margin-bottom: 40px;
-    animation: fadeIn 0.8s ease-out;
   }
-  
-  .avatar {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 2.5em;
-    font-weight: bold;
-    margin: 0 auto 20px;
-    box-shadow: 0 5px 15px rgba(46, 76, 144, 0.3);
-  }
-  
-  h1 {
-    color: #2a5298;
-    font-size: 2em;
-    margin: 0;
-  }
-  
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-  }
-  
-  .info-card {
-    background: #f8f9fa;
-    border-radius: 15px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    animation: slideUp 0.6s ease-out;
-  }
-  
-  .info-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .icon {
-    width: 50px;
-    height: 50px;
-    background: #1e3c72;
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 15px;
-  }
-  
-  .icon i {
-    color: white;
-    font-size: 1.5em;
-  }
-  
-  .info-content {
-    flex: 1;
-  }
-  
-  .info-content h3 {
-    margin: 0;
-    color: #1e3c72;
-    font-size: 1.1em;
-    margin-bottom: 5px;
-  }
-  
-  .info-content p {
-    margin: 0;
-    color: #666;
-    font-size: 1.2em;
-    font-weight: 500;
-  }
-  
-  .action-buttons {
+
+  .user-info {
     text-align: center;
-    margin-top: 30px;
   }
-  
-  .logout-btn {
-    background: #ff4757;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-size: 1em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
-  
-  .logout-btn:hover {
-    background: #ff6b81;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
-  }
-  
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .welcome-card {
-      padding: 20px;
-    }
-  
-    .info-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    h1 {
-      font-size: 1.5em;
-    }
-  
-    .avatar {
-      width: 80px;
-      height: 80px;
-      font-size: 2em;
-    }
-  }
-  </style>
+}
+</style>
