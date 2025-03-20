@@ -97,7 +97,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'succes' => false,
-        'message' => 'Erreur serveur:' . $e->getMessage()
+        'message' => 'Erreur serveur: ' . $e->getMessage()
     ]);
 }
 ?>
