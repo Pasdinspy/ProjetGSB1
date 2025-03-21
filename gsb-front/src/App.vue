@@ -11,8 +11,14 @@
         <router-link to="/frais" class="nav-link" v-if="authStore.isVisiteurMedical()">
           <i class="fas fa-receipt"></i> Frais
         </router-link>
-        <router-link to="/historique" class="nav-link">
+        <router-link to="/historique" class="nav-link" v-if="authStore.isVisiteurMedical() || authStore.isAdministrateur()">
           <i class="fas fa-history"></i> Historique
+        </router-link>
+        <router-link to="/employees" class="nav-link" v-if="authStore.isAdministrateur()">
+          <i class="fas fa-users"></i> Employés
+        </router-link>
+        <router-link to="/payments" class="nav-link" v-if="authStore.isAdministrateur() || authStore.isComptable()">
+          <i class="fas fa-money-check-alt"></i> Paiements
         </router-link>
         <button @click="handleLogout" class="logout-button">
           <i class="fas fa-sign-out-alt"></i> Déconnexion

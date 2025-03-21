@@ -1,51 +1,36 @@
-<!-- gsb-front/src/views/HomeView.vue -->
 <template>
-  <div class="home-container">
-    <div class="welcome-card">
-      <div class="profile-section">
-        <div class="avatar">
-          <span class="initials">{{ getInitials() }}</span>
-          <div class="status-badge" :class="roleClass"></div>
-        </div>
-        <div class="user-info">
-          <h1>Bienvenue, {{ authStore.user.username }} !</h1>
-          <p class="role">{{ formatRole(authStore.user.role) }}</p>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <i class="fas fa-calendar"></i>
-          <div class="stat-info">
-            <h3>Dernière Connexion</h3>
-            <p>{{ formatDate(authStore.user.dteConnexion) }}</p>
+  <Layout>
+    <main class="main-content">
+      <div class="welcome-card">
+        <div class="profile-section">
+          <div class="avatar">
+            <span class="initials">{{ getInitials() }}</span>
+            <div class="status-badge" :class="roleClass"></div>
+          </div>
+          <div class="user-info">
+            <h1>Bienvenue, {{ authStore.user.username }} !</h1>
+            <p class="role">{{ formatRole(authStore.user.role) }}</p>
           </div>
         </div>
-
-        <div class="stat-card" v-if="authStore.user.VIS_ID">
-          <i class="fas fa-id-badge"></i>
-          <div class="stat-info">
-            <h3>ID Visiteur</h3>
-            <p>{{ authStore.user.VIS_ID }}</p>
+        <div class="stats-grid">
+          <div class="stat-card" v-if="authStore.user.VIS_ID">
+            <i class="fas fa-id-badge"></i>
+            <div class="stat-info">
+              <h3>ID Visiteur</h3>
+              <p>{{ authStore.user.VIS_ID }}</p>
+            </div>
           </div>
         </div>
-
-        <!-- Actions rapides -->
-        <div class="quick-actions" v-if="authStore.isVisiteurMedical()">
-          <router-link to="/frais" class="action-button">
-            <i class="fas fa-plus-circle"></i>
-            Nouvelle note de frais
-          </router-link>
-        </div>
       </div>
-    </div>
-  </div>
+    </main>
+  </Layout>
 </template>
 
 <script setup>
 import { useAuthStore } from '../stores/auth'
 import { useRouter } from 'vue-router'
 import { onMounted, computed } from 'vue'
+import Layout from '../components/Layout.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -77,24 +62,11 @@ const roleClass = computed(() => {
   }
   return roles[authStore.user.role]
 })
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
 </script>
 
 <style scoped>
-.home-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+.main-content {
+  flex: 1;
 }
 
 .welcome-card {
@@ -190,29 +162,6 @@ const formatDate = (dateString) => {
   color: #2c3e50;
   font-size: 1.1em;
   font-weight: 500;
-}
-
-.quick-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.action-button {
-  background: #1e3c72;
-  color: white;
-  text-decoration: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.3s;
-}
-
-.action-button:hover {
-  background: #2a5298;
 }
 
 /* Responsive Design */

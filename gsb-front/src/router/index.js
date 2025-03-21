@@ -21,7 +21,7 @@ const router = createRouter({
       component: () => import('../views/Frais.vue'),
       meta: {
         requiresAuth: true,
-        allowedRoles: ['VISITEUR_MEDICAL', 'ADMINISTRATEUR']
+        allowedRoles: ['VISITEUR_MEDICAL']
       }
     },
     {
