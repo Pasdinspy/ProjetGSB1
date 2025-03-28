@@ -1,98 +1,149 @@
 <template>
-    <Layout>
-      <div class="frais-container">
-        <h1>Soumettre une fiche de frais</h1>
-        <form @submit.prevent="submitFrais">
-          <div class="form-group">
-            <label for="month">Mois</label>
-            <select id="month" v-model="frais.month" required>
-              <option disabled value="">Sélectionnez un mois</option>
-              <option value="Janvier">Janvier</option>
-              <option value="Février">Février</option>
-              <option value="Mars">Mars</option>
-              <option value="Avril">Avril</option>
-              <option value="Mai">Mai</option>
-              <option value="Juin">Juin</option>
-              <option value="Juillet">Juillet</option>
-              <option value="Août">Août</option>
-              <option value="Septembre">Septembre</option>
-              <option value="Octobre">Octobre</option>
-              <option value="Novembre">Novembre</option>
-              <option value="Décembre">Décembre</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="year">Année</label>
-            <select id="year" v-model="frais.year" required>
-              <option disabled value="">Sélectionnez une année</option>
-              <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="repas">Repas</label>
-            <input type="number" id="repas" v-model="frais.repas" required />
-          </div>
-          <div class="form-group">
-            <label for="nuitees">Nuitées</label>
-            <input type="number" id="nuitees" v-model="frais.nuitees" required />
-          </div>
-          <div class="form-group">
-            <label for="etape">Étape</label>
-            <input type="number" id="etape" v-model="frais.etape" required />
-          </div>
-          <div class="form-group">
-            <label for="km">Kilomètres</label>
-            <input type="number" id="km" v-model="frais.km" required />
-          </div>
-          <button type="submit" class="submit-button">Soumettre</button>
-        </form>
-        <div v-if="message" class="message">{{ message }}</div>
+  <Layout>
+    <div class="frais-container">
+      <h1>Soumettre une fiche de frais</h1>
+      <!-- Message d'erreur si une fiche existe déjà -->
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
       </div>
-    </Layout>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue'
-  import { useAuthStore } from '../stores/auth'
-  import Layout from '../components/Layout.vue'
-  
-  const authStore = useAuthStore()
-  const frais = ref({
-    month: '',
-    year: '',
-    repas: 0,
-    nuitees: 0,
-    etape: 0,
-    km: 0,
-    VIS_ID: authStore.user.VIS_ID
-  })
-  const message = ref('')
-  
-  // Generate years from 2000 to current year + 1
-  const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: currentYear - 1999 + 2 }, (_, i) => 2000 + i)
-  
-  const submitFrais = async () => {
-    try {
-      const response = await fetch('http://51.83.74.206:8000/src/insertFicheDeFrais.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(frais.value),
-      })
-  
-      const data = await response.json()
-      if (data.succes) {
-        message.value = 'Fiche de frais soumise avec succès'
-      } else {
-        message.value = data.message || 'Erreur lors de la soumission de la fiche de frais'
+      <form v-else @submit.prevent="submitFrais">
+        <div class="form-group">
+          <label for="month">Mois</label>
+          <input 
+            type="text" 
+            id="month" 
+            :value="currentMonth" 
+            disabled 
+            class="disabled-input"
+          />
+        </div>
+        <div class="form-group">
+          <label for="year">Année</label>
+          <input 
+            type="text" 
+            id="year" 
+            :value="currentYear" 
+            disabled 
+            class="disabled-input"
+          />
+        </div>
+        <div class="form-group">
+          <label for="repas">Repas</label>
+          <input type="number" id="repas" v-model="frais.repas" required />
+        </div>
+        <div class="form-group">
+          <label for="nuitees">Nuitées</label>
+          <input type="number" id="nuitees" v-model="frais.nuitees" required />
+        </div>
+        <div class="form-group">
+          <label for="etape">Étape</label>
+          <input type="number" id="etape" v-model="frais.etape" required />
+        </div>
+        <div class="form-group">
+          <label for="km">Kilomètres</label>
+          <input type="number" id="km" v-model="frais.km" required />
+        </div>
+        <button type="submit" class="submit-button">Soumettre</button>
+      </form>
+      <div v-if="message" class="message">{{ message }}</div>
+    </div>
+  </Layout>
+</template>
+
+<script setup>
+import { ref, onMounted, computed } from 'vue'
+import { useAuthStore } from '../stores/auth'
+import Layout from '../components/Layout.vue'
+
+const authStore = useAuthStore()
+const message = ref('')
+const errorMessage = ref('')
+
+// Obtenir le mois actuel en français
+const getMoisActuel = () => {
+  const mois = [
+    'JANVIER', 'FEVRIER', 'MARS', 'AVRIL', 'MAI', 'JUIN',
+    'JUILLET', 'AOUT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DECEMBRE'
+  ]
+  return mois[new Date().getMonth()]
+}
+
+const currentMonth = computed(() => getMoisActuel())
+const currentYear = computed(() => new Date().getFullYear().toString())
+
+const frais = ref({
+  month: currentMonth.value,
+  year: currentYear.value,
+  repas: 0,
+  nuitees: 0,
+  etape: 0,
+  km: 0,
+  VIS_ID: authStore.user.VIS_ID
+})
+
+// Vérifier si une fiche existe déjà pour ce mois
+const checkExistingFiche = async () => {
+  try {
+    const response = await fetch(`http://51.83.74.206:8000/src/getFicheFrais.php?vis_id=${authStore.user.VIS_ID}&role=VISITEUR_MEDICAL`)
+    const data = await response.json()
+    
+    if (data.success) {
+      const existingFiche = data.data.find(fiche => 
+        fiche.FFR_MOIS === currentMonth.value && 
+        fiche.FFR_ANNEE === currentYear.value
+      )
+      
+      if (existingFiche) {
+        errorMessage.value = "Vous avez déjà créé une fiche de frais pour ce mois."
+        return true
       }
-    } catch (error) {
-      message.value = 'Erreur de connexion au serveur'
     }
+    return false
+  } catch (error) {
+    console.error('Erreur lors de la vérification:', error)
+    return true
   }
-  </script>
+}
+
+const submitFrais = async () => {
+  if (await checkExistingFiche()) {
+    return
+  }
+
+  try {
+    const response = await fetch('http://51.83.74.206:8000/src/insertFicheDeFrais.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(frais.value),
+    })
+
+    const data = await response.json()
+    if (data.succes) {
+      message.value = 'Fiche de frais soumise avec succès'
+      // Réinitialiser le formulaire
+      frais.value = {
+        month: currentMonth.value,
+        year: currentYear.value,
+        repas: 0,
+        nuitees: 0,
+        etape: 0,
+        km: 0,
+        VIS_ID: authStore.user.VIS_ID
+      }
+    } else {
+      message.value = data.message || 'Erreur lors de la soumission de la fiche de frais'
+    }
+  } catch (error) {
+    message.value = 'Erreur de connexion au serveur'
+  }
+}
+
+onMounted(async () => {
+  await checkExistingFiche()
+})
+</script>
   
   <style scoped>
   .frais-container {
@@ -146,4 +197,16 @@
     text-align: center;
     color: green;
   }
+  .disabled-input {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
   </style>

@@ -1,179 +1,235 @@
 <template>
   <Layout>
     <div class="historique-container">
+      <!-- En-tête avec filtres -->
       <div class="header">
         <h1 class="title">Historique des fiches de frais</h1>
         <div class="filters">
-          <select v-model="selectedMonth" class="filter-select">
-            <option value="">Tous les mois</option>
-            <option v-for="month in months" :key="month" :value="month">
-              {{ month }}
-            </option>
-          </select>
-          <select v-model="selectedYear" class="filter-select">
+          <select v-model="selectedYear" class="filter-select" @change="loadFiches">
             <option value="">Toutes les années</option>
-            <option v-for="year in years" :key="year" :value="year">
-              {{ year }}
-            </option>
-          </select>
-          <select v-model="selectedStatus" class="filter-select">
-            <option value="">Tous les états</option>
-            <option value="CR">En cours</option>
-            <option value="VA">Validée</option>
-            <option value="RE">Remboursée</option>
+            <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
           </select>
         </div>
       </div>
 
-      <div class="table-container">
-        <table v-if="filteredFiches.length" class="fiche-table">
-          <thead>
-            <tr>
-              <th v-if="isAdmin">Visiteur</th>
-              <th>Période</th>
-              <th>Montant</th>
-              <th>Justificatifs</th>
-              <th>État</th>
-              <th>Date modification</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="fiche in filteredFiches" :key="fiche.FFR_ID" 
-                :class="{ 'validated': fiche.ETA_ID === 'VA', 'pending': fiche.ETA_ID === 'CR' }">
-              <td v-if="isAdmin">{{ fiche.VIS_NOM }} {{ fiche.VIS_PRENOM }}</td>
-              <td>{{ fiche.FFR_MOIS }} {{ fiche.FFR_ANNEE }}</td>
-              <td>{{ formatMontant(fiche.FFR_MONTANT_VALIDE) }} €</td>
-              <td>{{ fiche.FFR_NB_JUSTIFICATIFS }}</td>
-              <td>
-                <span class="status-badge" :class="getStatusClass(fiche.ETA_ID)">
-                  {{ fiche.status }}
-                </span>
-              </td>
-              <td>{{ formatDate(fiche.FFR_DATE_MODIF) }}</td>
-              <td class="actions">
-                <button @click="viewDetails(fiche)" class="action-button view" title="Voir les détails">
-                  <i class="fas fa-eye"></i>
-                </button>
-                <button v-if="fiche.ETA_ID === 'CR'" 
-                        @click="editFiche(fiche)" 
-                        class="action-button edit"
-                        title="Modifier">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button v-if="canDelete(fiche)"
-                        @click="confirmDelete(fiche)"
-                        class="action-button delete"
-                        title="Supprimer">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-else class="empty-state">
-          <i class="fas fa-folder-open"></i>
-          <p>Aucune fiche de frais trouvée</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal d'édition -->
-    <div v-if="editingFiche" class="modal-backdrop" @click="editingFiche = null">
-      <div class="modal-content edit-modal" @click.stop>
-        <h2>Modifier la fiche de frais</h2>
-        <form @submit.prevent="updateFiche" class="edit-form">
-          <div class="form-group">
-            <label>Repas</label>
-            <input type="number" v-model="editForm.repas" min="0" required>
-          </div>
-          <div class="form-group">
-            <label>Nuitées</label>
-            <input type="number" v-model="editForm.nuitees" min="0" required>
-          </div>
-          <div class="form-group">
-            <label>Étapes</label>
-            <input type="number" v-model="editForm.etape" min="0" required>
-          </div>
-          <div class="form-group">
-            <label>Kilométrage</label>
-            <input type="number" v-model="editForm.km" min="0" required>
-          </div>
-          <div class="modal-actions">
-            <button type="submit" class="btn-save">Enregistrer</button>
-            <button type="button" @click="editingFiche = null" class="btn-cancel">Annuler</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Modal de confirmation de suppression -->
-    <div v-if="ficheToDelete" class="modal-backdrop" @click="ficheToDelete = null">
-      <div class="modal-content" @click.stop>
-        <h2>Confirmation de suppression</h2>
-        <p>Êtes-vous sûr de vouloir supprimer cette fiche de frais ?</p>
-        <div class="modal-actions">
-          <button @click="deleteFiche" class="btn-delete">Supprimer</button>
-          <button @click="ficheToDelete = null" class="btn-cancel">Annuler</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de détails -->
-    <div v-if="selectedFiche" class="modal-backdrop" @click="selectedFiche = null">
-      <div class="modal-content details-modal" @click.stop>
-        <h2>Détails de la fiche de frais</h2>
-        <div class="modal-body">
-          <div class="detail-row">
-            <span class="detail-label">Visiteur:</span>
-            <span class="detail-value">{{ selectedFiche.VIS_NOM }} {{ selectedFiche.VIS_PRENOM }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Période:</span>
-            <span class="detail-value">{{ selectedFiche.FFR_MOIS }} {{ selectedFiche.FFR_ANNEE }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Montant total:</span>
-            <span class="detail-value">{{ formatMontant(selectedFiche.FFR_MONTANT_VALIDE) }} €</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">État:</span>
-            <span class="detail-value">
-              <span class="status-badge" :class="getStatusClass(selectedFiche.ETA_ID)">
-                {{ selectedFiche.status }}
-              </span>
-            </span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Date de modification:</span>
-            <span class="detail-value">{{ formatDate(selectedFiche.FFR_DATE_MODIF) }}</span>
-          </div>
+      <!-- Tableau des fiches -->
+      <div v-if="groupedFiches && Object.keys(groupedFiches).length > 0">
+        <div v-for="(yearData, year) in groupedFiches" :key="year" class="year-section">
+          <h2 class="year-title">{{ year }}</h2>
           
-          <!-- Détails des frais -->
-          <h3 class="details-subtitle">Détail des frais forfaitaires</h3>
-          <div class="frais-details">
-            <div class="frais-item">
-              <span class="frais-label">Repas</span>
-              <span class="frais-value">{{ selectedFiche.repas || 0 }}</span>
+          <div v-for="(monthData, month) in yearData" :key="month" class="month-section">
+            <div class="month-header">
+              <h3>{{ month }}</h3>
             </div>
-            <div class="frais-item">
-              <span class="frais-label">Nuitées</span>
-              <span class="frais-value">{{ selectedFiche.nuitees || 0 }}</span>
-            </div>
-            <div class="frais-item">
-              <span class="frais-label">Étapes</span>
-              <span class="frais-value">{{ selectedFiche.etape || 0 }}</span>
-            </div>
-            <div class="frais-item">
-              <span class="frais-label">Kilométrage</span>
-              <span class="frais-value">{{ selectedFiche.km || 0 }} km</span>
+
+            <div class="fiche-card" 
+                 v-for="fiche in monthData" 
+                 :key="fiche.FFR_ID"
+                 :class="getFicheStatusClass(fiche.ETA_ID)">
+              <div class="fiche-header">
+                <div class="fiche-info">
+                  <span v-if="isAdmin" class="visiteur-info">
+                    {{ fiche.VIS_NOM }} {{ fiche.VIS_PRENOM }}
+                  </span>
+                  <span class="date-info">
+                    Modifiée le {{ formatDate(fiche.FFR_DATE_MODIF) }}
+                  </span>
+                </div>
+                <div class="status-badge" :class="getStatusClass(fiche.ETA_ID)">
+                  {{ getStatusText(fiche.ETA_ID) }}
+                </div>
+              </div>
+
+              <div class="fiche-body">
+                <div class="montant-section">
+                  <span class="montant-label">Montant total</span>
+                  <span class="montant-value">{{ formatMontant(fiche.FFR_MONTANT_VALIDE) }} €</span>
+                </div>
+                <div class="justificatifs-section">
+                  <span class="justificatifs-label">Justificatifs</span>
+                  <span class="justificatifs-value">{{ fiche.FFR_NB_JUSTIFICATIFS }}</span>
+                </div>
+              </div>
+
+              <div class="fiche-actions">
+                <button @click="viewDetails(fiche)" class="btn btn-view">
+                  <i class="fas fa-eye"></i> Détails
+                </button>
+                <button v-if="canEditFiche(fiche)" 
+                        @click="editFiche(fiche)" 
+                        class="btn btn-edit">
+                  <i class="fas fa-edit"></i> Modifier
+                </button>
+                <button v-if="canDeleteFiche(fiche)" 
+                        @click="confirmDelete(fiche)" 
+                        class="btn btn-delete">
+                  <i class="fas fa-trash"></i> Supprimer
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        <button @click="selectedFiche = null" class="modal-close">
-          <i class="fas fa-times"></i>
-        </button>
       </div>
+
+      <!-- État vide -->
+      <div v-else class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <p>Aucune fiche de frais trouvée</p>
+      </div>
+
+      <!-- Modal de détails -->
+      <modal v-if="selectedFiche" @close="selectedFiche = null">
+        <template #header>
+          <h3>Détails de la fiche de frais</h3>
+        </template>
+        <template #body>
+          <div class="details-content">
+            <div class="details-section">
+              <h4>Informations générales</h4>
+              <div class="detail-row">
+                <span class="detail-label">Période :</span>
+                <span class="detail-value">{{ selectedFiche.FFR_MOIS }} {{ selectedFiche.FFR_ANNEE }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">État :</span>
+                <span class="detail-value">
+                  <span class="status-badge" :class="getStatusClass(selectedFiche.ETA_ID)">
+                    {{ getStatusText(selectedFiche.ETA_ID) }}
+                  </span>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Date de modification :</span>
+                <span class="detail-value">{{ formatDate(selectedFiche.FFR_DATE_MODIF) }}</span>
+              </div>
+            </div>
+
+            <div class="details-section">
+              <h4>Frais forfaitaires</h4>
+              <div class="frais-grid">
+                <div class="frais-item">
+                  <i class="fas fa-utensils"></i>
+                  <span class="frais-label">Repas</span>
+                  <span class="frais-value">{{ selectedFiche.repas || 0 }}</span>
+                </div>
+                <div class="frais-item">
+                  <i class="fas fa-bed"></i>
+                  <span class="frais-label">Nuitées</span>
+                  <span class="frais-value">{{ selectedFiche.nuitees || 0 }}</span>
+                </div>
+                <div class="frais-item">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span class="frais-label">Étapes</span>
+                  <span class="frais-value">{{ selectedFiche.etape || 0 }}</span>
+                </div>
+                <div class="frais-item">
+                  <i class="fas fa-road"></i>
+                  <span class="frais-label">Kilométrage</span>
+                  <span class="frais-value">{{ selectedFiche.km || 0 }} km</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="details-section">
+              <h4>Montant total</h4>
+              <div class="montant-total">
+                {{ formatMontant(selectedFiche.FFR_MONTANT_VALIDE) }} €
+              </div>
+            </div>
+          </div>
+        </template>
+      </modal>
+
+      <!-- Modal d'édition -->
+      <modal v-if="editingFiche" @close="editingFiche = null">
+        <template #header>
+          <h3>Modifier la fiche de frais</h3>
+        </template>
+        <template #body>
+          <form @submit.prevent="updateFiche" class="edit-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="repas">
+                  <i class="fas fa-utensils"></i> Repas
+                </label>
+                <input 
+                  type="number" 
+                  id="repas" 
+                  v-model="editForm.repas" 
+                  min="0" 
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="nuitees">
+                  <i class="fas fa-bed"></i> Nuitées
+                </label>
+                <input 
+                  type="number" 
+                  id="nuitees" 
+                  v-model="editForm.nuitees" 
+                  min="0" 
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="etape">
+                  <i class="fas fa-map-marker-alt"></i> Étapes
+                </label>
+                <input 
+                  type="number" 
+                  id="etape" 
+                  v-model="editForm.etape" 
+                  min="0" 
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="km">
+                  <i class="fas fa-road"></i> Kilométrage
+                </label>
+                <input 
+                  type="number" 
+                  id="km" 
+                  v-model="editForm.km" 
+                  min="0" 
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Enregistrer
+              </button>
+              <button type="button" @click="editingFiche = null" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Annuler
+              </button>
+            </div>
+          </form>
+        </template>
+      </modal>
+
+      <!-- Modal de confirmation de suppression -->
+      <modal v-if="ficheToDelete" @close="ficheToDelete = null">
+        <template #header>
+          <h3>Confirmation de suppression</h3>
+        </template>
+        <template #body>
+          <div class="delete-confirmation">
+            <i class="fas fa-exclamation-triangle warning-icon"></i>
+            <p>Êtes-vous sûr de vouloir supprimer cette fiche de frais ?</p>
+            <p class="delete-warning">Cette action est irréversible.</p>
+            <div class="confirmation-actions">
+              <button @click="deleteFiche" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Supprimer
+              </button>
+              <button @click="ficheToDelete = null" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Annuler
+              </button>
+            </div>
+          </div>
+        </template>
+      </modal>
     </div>
   </Layout>
 </template>
@@ -182,6 +238,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import Layout from '../components/Layout.vue'
+import Modal from '../components/Modal.vue'
 
 const authStore = useAuthStore()
 const fiches = ref([])
@@ -189,9 +246,7 @@ const years = ref([])
 const selectedFiche = ref(null)
 const ficheToDelete = ref(null)
 const editingFiche = ref(null)
-const selectedMonth = ref('')
 const selectedYear = ref('')
-const selectedStatus = ref('')
 const editForm = ref({
   repas: 0,
   nuitees: 0,
@@ -201,18 +256,41 @@ const editForm = ref({
 
 const isAdmin = computed(() => authStore.isAdministrateur())
 
-const months = [
-  'JANVIER', 'FEVRIER', 'MARS', 'AVRIL', 'MAI', 'JUIN',
-  'JUILLET', 'AOUT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DECEMBRE'
-]
+// Grouper les fiches par année et mois
+const groupedFiches = computed(() => {
+  if (!fiches.value.length) return null
 
-const filteredFiches = computed(() => {
-  return fiches.value.filter(fiche => {
-    const monthMatch = !selectedMonth.value || fiche.FFR_MOIS === selectedMonth.value
-    const yearMatch = !selectedYear.value || fiche.FFR_ANNEE === selectedYear.value
-    const statusMatch = !selectedStatus.value || fiche.ETA_ID === selectedStatus.value
-    return monthMatch && yearMatch && statusMatch
-  })
+  let grouped = fiches.value.reduce((acc, fiche) => {
+    if (selectedYear.value && fiche.FFR_ANNEE !== selectedYear.value) {
+      return acc
+    }
+
+    if (!acc[fiche.FFR_ANNEE]) {
+      acc[fiche.FFR_ANNEE] = {}
+    }
+    if (!acc[fiche.FFR_ANNEE][fiche.FFR_MOIS]) {
+      acc[fiche.FFR_ANNEE][fiche.FFR_MOIS] = []
+    }
+    acc[fiche.FFR_ANNEE][fiche.FFR_MOIS].push(fiche)
+    return acc
+  }, {})
+
+  // Trier les années et mois
+  return Object.keys(grouped)
+    .sort((a, b) => b - a)
+    .reduce((acc, year) => {
+      acc[year] = Object.keys(grouped[year])
+        .sort((a, b) => {
+          const months = ['JANVIER', 'FEVRIER', 'MARS', 'AVRIL', 'MAI', 'JUIN',
+                         'JUILLET', 'AOUT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DECEMBRE']
+          return months.indexOf(b) - months.indexOf(a)
+        })
+        .reduce((monthAcc, month) => {
+          monthAcc[month] = grouped[year][month]
+          return monthAcc
+        }, {})
+      return acc
+    }, {})
 })
 
 const formatMontant = (montant) => {
@@ -229,10 +307,30 @@ const formatDate = (date) => {
 const getStatusClass = (status) => {
   const statusClasses = {
     'CR': 'status-pending',
+    'CL': 'status-closed',
     'VA': 'status-validated',
     'RE': 'status-reimbursed'
   }
   return statusClasses[status] || 'status-default'
+}
+
+const getStatusText = (status) => {
+  const statusTexts = {
+    'CR': 'En cours',
+    'CL': 'Clôturée',
+    'VA': 'Validée',
+    'RE': 'Remboursée'
+  }
+  return statusTexts[status] || status
+}
+
+const getFicheStatusClass = (status) => {
+  return {
+    'fiche-pending': status === 'CR',
+    'fiche-closed': status === 'CL',
+    'fiche-validated': status === 'VA',
+    'fiche-reimbursed': status === 'RE'
+  }
 }
 
 const loadYears = async () => {
@@ -266,19 +364,14 @@ const loadFiches = async () => {
   }
 }
 
-const loadFicheFraisForfait = async (ficheId) => {
-  try {
-    const response = await fetch(`http://51.83.74.206:8000/src/getFraisForfait.php?FFR_ID=${ficheId}`)
-    const result = await response.json()
-    
-    if (result.success) {
-      return result.data
-    }
-    return null
-  } catch (error) {
-    console.error('Erreur lors du chargement des frais forfaits:', error)
-    return null
-  }
+const canEditFiche = (fiche) => {
+  return fiche.ETA_ID === 'CR' && 
+         (isAdmin.value || authStore.user.VIS_ID === fiche.VIS_ID)
+}
+
+const canDeleteFiche = (fiche) => {
+  return fiche.ETA_ID === 'CR' && 
+         (isAdmin.value || authStore.user.VIS_ID === fiche.VIS_ID)
 }
 
 const viewDetails = async (fiche) => {
@@ -294,8 +387,6 @@ const viewDetails = async (fiche) => {
         etape: result.data.etape,
         km: result.data.km
       }
-    } else {
-      console.error('Erreur lors du chargement des frais forfaits:', result.message)
     }
   } catch (error) {
     console.error('Erreur lors du chargement des frais forfaits:', error)
@@ -315,8 +406,6 @@ const editFiche = async (fiche) => {
         etape: result.data.etape,
         km: result.data.km
       }
-    } else {
-      console.error('Erreur lors du chargement des frais forfaits:', result.message)
     }
   } catch (error) {
     console.error('Erreur lors du chargement des frais forfaits:', error)
@@ -340,17 +429,10 @@ const updateFiche = async () => {
     if (result.success) {
       await loadFiches()
       editingFiche.value = null
-    } else {
-      console.error('Erreur lors de la mise à jour:', result.message)
     }
   } catch (error) {
     console.error('Erreur lors de la mise à jour:', error)
   }
-}
-
-const canDelete = (fiche) => {
-  return fiche.ETA_ID === 'CR' && 
-         (isAdmin.value || authStore.user.VIS_ID === fiche.VIS_ID)
 }
 
 const confirmDelete = (fiche) => {
@@ -389,6 +471,8 @@ onMounted(async () => {
 <style scoped>
 .historique-container {
   padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .header {
@@ -399,55 +483,89 @@ onMounted(async () => {
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   color: #2c3e50;
-}
-
-.filters {
-  display: flex;
-  gap: 1rem;
-}
-
-.filter-select {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-}
-
-.table-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow-x: auto;
-}
-
-.fiche-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.fiche-table th,
-.fiche-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-.fiche-table th {
-  background: #f8f9fa;
   font-weight: 600;
 }
 
+.year-section {
+  margin-bottom: 2rem;
+}
+
+.year-title {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.month-section {
+  margin-bottom: 1.5rem;
+}
+
+.month-header {
+  margin-bottom: 1rem;
+  color: #6c757d;
+}
+
+.fiche-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fiche-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.fiche-pending { border-left: 4px solid #ffd700; }
+.fiche-closed { border-left: 4px solid #6c757d; }
+.fiche-validated { border-left: 4px solid #28a745; }
+.fiche-reimbursed { border-left: 4px solid #17a2b8; }
+
+.fiche-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.fiche-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.visiteur-info {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.date-info {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
 .status-badge {
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 999px;
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .status-pending {
   background: #fff3cd;
   color: #856404;
+}
+
+.status-closed {
+  background: #e9ecef;
+  color: #495057;
 }
 
 .status-validated {
@@ -460,173 +578,145 @@ onMounted(async () => {
   color: #004085;
 }
 
-.actions {
+.fiche-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.montant-section,
+.justificatifs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.montant-label,
+.justificatifs-label {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.montant-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.fiche-actions {
   display: flex;
   gap: 0.5rem;
-}
-
-.action-button {
-  padding: 0.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.action-button:hover {
-  transform: translateY(-2px);
-}
-
-.action-button.view {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.action-button.edit {
-  background: #fff3e0;
-  color: #f57c00;
-}
-
-.action-button.delete {
-  background: #ffebee;
-  color: #d32f2f;
-}
-
-.empty-state {
-  padding: 3rem;
-  text-align: center;
-  color: #6c757d;
-}
-
-.empty-state i {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  min-width: 400px;
-  position: relative;
-}
-
-.modal-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-}
-
-.modal-actions {
-  display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
 }
 
-.btn-delete,
-.btn-cancel {
+.btn {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn i {
+  font-size: 0.875rem;
+}
+
+.btn-view {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.btn-edit {
+  background: #fff3cd;
+  color: #856404;
 }
 
 .btn-delete {
-  background: #dc3545;
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.btn-success {
+  background: #28a745;
   color: white;
 }
 
-.btn-cancel {
+.btn-secondary {
   background: #6c757d;
   color: white;
 }
 
-.btn-save {
-  background: #28a745;
+.btn-danger {
+  background: #dc3545;
   color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
-.details-modal {
-  min-width: 500px;
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.detail-row {
+.empty-state i {
+  font-size: 3rem;
+  color: #6c757d;
   margin-bottom: 1rem;
+}
+
+.details-content {
   display: flex;
-  border-bottom: 1px solid #eee;
-  padding: 0.5rem 0;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.detail-label {
-  font-weight: bold;
-  min-width: 150px;
-  color: #666;
+.details-section {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
 }
 
-.detail-value {
+.details-section h4 {
   color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
 }
 
-.details-subtitle {
-  margin: 1.5rem 0 1rem;
-  color: #2c3e50;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 0.5rem;
-}
-
-.frais-details {
+.frais-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  margin-top: 1rem;
 }
 
 .frais-item {
-  background: #f8f9fa;
+  background: white;
   padding: 1rem;
-  border-radius: 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.frais-label {
-  color: #666;
-  font-weight: 500;
-}
-
-.frais-value {
-  color: #2c3e50;
-  font-weight: 600;
-}
-
-.edit-form {
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.frais-item i {
+  font-size: 1.5rem;
+  color: #6c757d;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-group {
@@ -636,43 +726,71 @@ onMounted(async () => {
 }
 
 .form-group label {
-  font-weight: 600;
-  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #495057;
+  font-weight: 500;
 }
 
 .form-group input {
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid #ced4da;
   border-radius: 4px;
+  font-size: 1rem;
+}
+
+.delete-confirmation {
+  text-align: center;
+  padding: 1rem;
+}
+
+.warning-icon {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+.delete-warning {
+  color: #721c24;
+  margin-top: 0.5rem;
+}
+
+.confirmation-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 @media (max-width: 768px) {
+  .historique-container {
+    padding: 1rem;
+  }
+
   .header {
     flex-direction: column;
     gap: 1rem;
   }
 
-  .filters {
+  .fiche-body {
     flex-direction: column;
-    width: 100%;
+    gap: 1rem;
+    text-align: center;
   }
 
-  .filter-select {
-    width: 100%;
-  }
-
-  .modal-content {
-    margin: 1rem;
-    min-width: auto;
-    width: calc(100% - 2rem);
-  }
-
-  .actions {
+  .fiche-actions {
+    justify-content: center;
     flex-wrap: wrap;
   }
 
-  .action-button {
-    padding: 0.25rem;
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
