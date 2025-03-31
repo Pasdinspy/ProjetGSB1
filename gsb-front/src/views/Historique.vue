@@ -902,4 +902,33 @@ onMounted(async () => {
     grid-template-columns: 1fr;
   }
 }
+.fiche-reimbursed { 
+  border-left: 4px solid #00a854; /* Vert */
+  background: linear-gradient(to right, rgba(0, 168, 84, 0.05), white);
+}
+
+/* Pour le badge de statut */
+.status-reimbursed {
+  background: #00a854; /* Vert */
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 168, 84, 0.2);
+}
+
+/* Pour le montant quand remboursé */
+.fiche-reimbursed .montant-value {
+  color: #00a854;
+  font-weight: 700;
+}
+
+/* Animation pour les fiches remboursées */
+.fiche-reimbursed:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 168, 84, 0.1);
+}
+
+/* Ajout d'une icône pour les fiches remboursées */
+.fiche-reimbursed .status-badge::before {
+  content: '✓';
+  margin-right: 4px;
+}
 </style>

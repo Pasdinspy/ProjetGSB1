@@ -191,4 +191,23 @@ defineEmits(['close'])
 .modal-content::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+/* Dans Modal.vue, ajoutez ces styles */
+.modal-backdrop {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
 </style>
