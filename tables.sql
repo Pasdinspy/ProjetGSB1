@@ -80,12 +80,9 @@ CREATE TABLE `ligne_frais_hors_forfait` (
 
 -- Insertion des données
 INSERT INTO `etat` (`ETA_ID`, `ETA_LIB`) VALUES
-('AC', 'Accepter'),
 ('CL', 'Saisie clôturée'),
 ('CR', 'Fiche créée, saisie en cours'),
-('DE', 'Décliner'),
-('RE', 'Remboursée'),
-('VA', 'Validée et mise en paiement');
+('RE', 'Remboursée');
 
 INSERT INTO `frais_forfait` (`FOR_ID`, `FOR_LIB`, `FOR_MONTANT`) VALUES
 ('ETP', 'etape', 2.00),
