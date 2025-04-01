@@ -16,40 +16,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/config/database.php';
 
 try {
-    $database = new Database();
-    $cnxBDD = $database->getConnection();
-    
-    // Récupérer les données du corps de la requête
     $data = json_decode(file_get_contents('php://input'), true);
     
+    // Vérification des données requises
     if (!isset($data['FFR_ID']) || !isset($data['ETA_ID'])) {
         throw new Exception('Données manquantes');
     }
 
-    // Mettre à jour l'état de la fiche
-    $sql = "UPDATE fiche_frais 
-            SET ETA_ID = :eta_id,
-                FFR_DATE_MODIF = CURRENT_DATE
-            WHERE FFR_ID = :ffr_id";
+    // Vérification que l'état demandé est valide (RE pour remboursé)
+    if ($data['ETA_ID'] !== 'RE') {
+        throw new Exception('État invalide');
+    }
 
-    $stmt = $cnxBDD->prepare($sql);
-    $stmt->bindParam(':eta_id', $data['ETA_ID']);
-    $stmt->bindParam(':ffr_id', $data['FFR_ID']);
+    $database = new Database();
+    $cnxBDD = $database->getConnection();
     
-    if ($stmt->execute()) {
+    // Début de la transaction
+    $cnxBDD->beginTransaction();
+
+    try {
+        // Vérifier que la fiche existe et est clôturée (CL)
+        $sql = "SELECT FFR_ID, ETA_ID 
+                FROM fiche_frais 
+                WHERE FFR_ID = :FFR_ID 
+                AND ETA_ID = 'CL'";
+        
+        $stmt = $cnxBDD->prepare($sql);
+        $stmt->bindParam(':FFR_ID', $data['FFR_ID']);
+        $stmt->execute();
+        
+        $fiche = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$fiche) {
+            throw new Exception('Fiche non trouvée ou déjà remboursée');
+        }
+
+        // Mettre à jour l'état de la fiche
+        $sql = "UPDATE fiche_frais 
+                SET ETA_ID = :ETA_ID,
+                    FFR_DATE_MODIF = CURRENT_DATE
+                WHERE FFR_ID = :FFR_ID";
+                
+        $stmt = $cnxBDD->prepare($sql);
+        $stmt->execute([
+            ':ETA_ID' => $data['ETA_ID'],
+            ':FFR_ID' => $data['FFR_ID']
+        ]);
+
+        $cnxBDD->commit();
+        
         http_response_code(200);
         echo json_encode([
-            'success' => true,
-            'message' => 'État de la fiche mis à jour avec succès'
+            'success' => true, 
+            'message' => 'La fiche a été marquée comme remboursée'
         ]);
-    } else {
-        throw new Exception('Erreur lors de la mise à jour de la fiche');
+
+    } catch (Exception $e) {
+        $cnxBDD->rollBack();
+        throw $e;
     }
 
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
-        'success' => false,
+        'success' => false, 
         'message' => $e->getMessage()
     ]);
 }

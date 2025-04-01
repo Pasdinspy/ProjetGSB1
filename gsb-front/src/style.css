@@ -1259,3 +1259,364 @@ body {
     padding-left: 0;
   }
 }
+
+
+/*-------------------------------------------------------------------------------------------------------------------------------*/
+
+
+
+/* Styles pour Payments.vue */
+.payments-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.payments-header {
+  margin-bottom: 2rem;
+}
+
+.payments-title {
+  font-size: 1.75rem;
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.payments-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.payments-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.payments-filter-group label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.payments-filter-select {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  min-width: 150px;
+  background-color: white;
+}
+
+.payments-fiches-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.payments-fiche-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.payments-fiche-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* États des fiches */
+.payments-fiche-pending {
+  border-left: 4px solid #ffd700;
+}
+
+.payments-fiche-closed {
+  border-left: 4px solid #6c757d;
+}
+
+.payments-fiche-reimbursed {
+  border-left: 4px solid #17a2b8;
+}
+
+.payments-fiche-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.payments-fiche-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.payments-visiteur-info {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.payments-period-info {
+  font-weight: 500;
+  color: #495057;
+}
+
+.payments-date-info {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+/* Badges de statut */
+.payments-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.payments-status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.payments-status-closed {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.payments-status-reimbursed {
+  background: #cce5ff;
+  color: #004085;
+}
+
+/* Corps de la fiche */
+.payments-fiche-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.payments-montant-section,
+.payments-justificatifs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.payments-montant-label,
+.payments-justificatifs-label {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.payments-montant-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Actions */
+.payments-fiche-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.payments-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payments-btn-view {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.payments-btn-view:hover {
+  background: #e9ecef;
+}
+
+.payments-btn-success {
+  background: #28a745;
+  color: white;
+  border: none;
+}
+
+.payments-btn-success:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.payments-btn-secondary {
+  background: #6c757d;
+  color: white;
+  border: none;
+}
+
+.payments-btn-secondary:hover {
+  background: #5a6268;
+}
+
+/* Modal specific styles */
+.payments-modal-title {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.payments-details-content {
+  padding: 1rem;
+}
+
+.payments-details-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.payments-details-section h4 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.payments-detail-row {
+  display: flex;
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
+
+.payments-detail-label {
+  width: 150px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.payments-detail-value {
+  flex: 1;
+  color: #2c3e50;
+}
+
+.payments-frais-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.payments-frais-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.payments-frais-item i {
+  font-size: 1.5rem;
+  color: #1e3c72;
+}
+
+.payments-montant-total {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.payments-confirmation-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.payments-confirmation-icon {
+  font-size: 4rem;
+  color: #28a745;
+  margin-bottom: 1.5rem;
+}
+
+.payments-confirmation-details {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.payments-confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.payments-empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+.payments-empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .payments-controls {
+    flex-direction: column;
+  }
+
+  .payments-filter-group {
+    width: 100%;
+  }
+
+  .payments-filter-select {
+    width: 100%;
+  }
+
+  .payments-fiche-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .payments-fiche-body {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .payments-fiche-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .payments-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
