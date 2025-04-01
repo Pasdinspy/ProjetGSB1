@@ -830,3 +830,432 @@ body {
   background: #dee2e6;
   transform: translateY(-2px);
 }
+
+
+
+/*-------------------------------------------------------------------------------------------------------------------------------*/
+
+
+/* Style pour Historique.vue */
+.historique-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.historique-header {
+  margin-bottom: 2rem;
+}
+
+.historique-title {
+  font-size: 1.75rem;
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.historique-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.historique-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.historique-filter-group label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.historique-filter-select {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  min-width: 150px;
+  background-color: white;
+}
+
+.historique-fiches-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.historique-fiche-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.historique-fiche-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* États des fiches */
+.historique-fiche-pending {
+  border-left: 4px solid #ffd700;
+}
+
+.historique-fiche-closed {
+  border-left: 4px solid #6c757d;
+}
+
+.historique-fiche-reimbursed {
+  border-left: 4px solid #17a2b8;
+}
+
+.historique-fiche-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.historique-fiche-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.historique-visiteur-info {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.historique-period-info {
+  font-weight: 500;
+  color: #495057;
+}
+
+.historique-date-info {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+/* Badges de statut */
+.historique-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.historique-status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.historique-status-closed {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.historique-status-reimbursed {
+  background: #cce5ff;
+  color: #004085;
+}
+
+/* Corps de la fiche */
+.historique-fiche-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.historique-montant-section,
+.historique-justificatifs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.historique-montant-label,
+.historique-justificatifs-label {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.historique-montant-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Actions */
+.historique-fiche-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* Boutons */
+.historique-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.historique-btn i {
+  font-size: 0.875rem;
+}
+
+.historique-btn-view {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.historique-btn-edit {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.historique-btn-delete {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.historique-btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.historique-btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.historique-btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+/* État vide */
+.historique-empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.historique-empty-state i {
+  font-size: 3rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+/* Modal et détails */
+.historique-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.historique-details-section {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.historique-frais-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .historique-container {
+    padding: 1rem;
+  }
+
+  .historique-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .historique-filter-group {
+    width: 100%;
+  }
+
+  .historique-filter-select {
+    width: 100%;
+  }
+
+  .historique-fiche-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .historique-status-badge {
+    align-self: flex-start;
+  }
+}
+
+/* Styles pour les modals de l'historique */
+.historique-modal-title {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.historique-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+.historique-details-section {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.historique-detail-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  width: 100%;
+  gap: 1rem;
+}
+
+
+.historique-detail-label {
+  min-width: 180px;
+  flex-shrink: 0;
+  color: #6c757d;
+  font-weight: 500;
+  text-align: right;
+}
+
+.historique-detail-value {
+  flex: 1; 
+  color: #2c3e50;
+  padding-left: 0.5rem;
+}
+
+
+.historique-frais-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.historique-frais-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.historique-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.historique-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.historique-form-input {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.historique-form-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.historique-delete-confirmation {
+  text-align: center;
+  padding: 1rem;
+}
+
+.historique-warning-icon {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+.historique-delete-warning {
+  color: #721c24;
+  margin-top: 0.5rem;
+}
+
+.historique-confirmation-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .historique-form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .historique-detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .historique-detail-label {
+    width: 100%;
+  }
+}
+
+/* Adaptation pour mobile */
+@media (max-width: 768px) {
+  .historique-detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .historique-detail-label {
+    min-width: unset;
+    width: 100%;
+    text-align: left;
+  }
+
+  .historique-detail-value {
+    width: 100%;
+    padding-left: 0;
+  }
+}
