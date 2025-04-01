@@ -506,4 +506,327 @@ body {
 
 /*-------------------------------------------------------------------------------------------------------------------------------*/
 
+/* Styles pour Modal */
+.gsb-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: gsb-backdrop-in 0.4s ease-out;
+  padding: 2rem;
+}
 
+.gsb-modal-content {
+  background: #ffffff; /* Changé en blanc */
+  border-radius: 20px;
+  width: 800px;
+  max-width: 95vw;
+  min-height: 400px;
+  max-height: 90vh;
+  position: relative;
+  animation: gsb-modal-in 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gsb-modal-header {
+  padding: 1.75rem 2rem;
+  background: #1e3c72; /* Bleu GSB */
+  position: relative;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gsb-modal-header h3 {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: gsb-slide-in 0.5s ease-out;
+}
+
+.gsb-modal-body {
+  padding: 2rem;
+  flex: 1;
+  overflow-y: auto;
+  color: #333333; /* Texte foncé */
+  background: #ffffff; /* Fond blanc */
+  animation: gsb-fade-in 0.6s ease-out;
+}
+
+.gsb-modal-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.gsb-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: rotate(90deg) scale(1.1);
+}
+
+/* Personnalisation de la barre de défilement */
+.gsb-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.gsb-modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.gsb-modal-body::-webkit-scrollbar-thumb {
+  background: #1e3c72;
+  border-radius: 4px;
+}
+
+.gsb-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #2a5298;
+}
+
+/* Styles pour les éléments internes du modal */
+.gsb-modal-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.gsb-modal-section:hover {
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.gsb-modal-title {
+  color: #1e3c72; /* Bleu GSB */
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gsb-modal-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.gsb-modal-label {
+  color: #495057;
+  width: 150px;
+  font-weight: 500;
+}
+
+.gsb-modal-value {
+  color: #212529;
+  flex: 1;
+}
+
+/* Animation d'entrée du backdrop */
+@keyframes gsb-backdrop-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* Animation d'entrée du modal */
+@keyframes gsb-modal-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(-40px);
+  }
+  60% {
+    transform: scale(1.02) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Animation de slide */
+@keyframes gsb-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animation de fade */
+@keyframes gsb-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Effect de hover sur le modal */
+.gsb-modal-content:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s ease;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .gsb-modal-backdrop {
+    padding: 1rem;
+  }
+
+  .gsb-modal-content {
+    width: 100%;
+    min-height: 300px;
+  }
+
+  .gsb-modal-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .gsb-modal-body {
+    padding: 1.5rem;
+  }
+
+  .gsb-modal-close {
+    width: 36px;
+    height: 36px;
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .gsb-modal-section {
+    padding: 1rem;
+  }
+
+  .gsb-modal-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gsb-modal-label {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Animation séquentielle pour les sections */
+.gsb-modal-section {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: gsb-section-in 0.5s ease-out forwards;
+}
+
+.gsb-modal-section:nth-child(1) { animation-delay: 0.1s; }
+.gsb-modal-section:nth-child(2) { animation-delay: 0.2s; }
+.gsb-modal-section:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes gsb-section-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Styles pour les formulaires dans le modal */
+.gsb-modal-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.gsb-modal-form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+.gsb-modal-form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #212529;
+  transition: all 0.3s ease;
+}
+
+.gsb-modal-form-input:focus {
+  border-color: #1e3c72;
+  box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+  outline: none;
+}
+
+/* Styles pour les boutons dans le modal */
+.gsb-modal-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gsb-modal-btn-primary {
+  background: #1e3c72;
+  color: #ffffff;
+  border: none;
+}
+
+.gsb-modal-btn-primary:hover {
+  background: #2a5298;
+  transform: translateY(-2px);
+}
+
+.gsb-modal-btn-secondary {
+  background: #e9ecef;
+  color: #495057;
+  border: 1px solid #ced4da;
+}
+
+.gsb-modal-btn-secondary:hover {
+  background: #dee2e6;
+  transform: translateY(-2px);
+}
