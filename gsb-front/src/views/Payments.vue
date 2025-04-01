@@ -277,7 +277,7 @@ const loadFiches = async () => {
     const response = await fetch('http://51.83.74.206:8000/src/getFicheFrais.php')
     const result = await response.json()
     if (result.success) {
-      fiches.value = result.data
+      fiches.value = result.data.filter(fiche => fiche.ETA_ID === 'CL'|| fiche.ETA_ID === 'RE') 
     }
   } catch (error) {
     console.error('Erreur lors du chargement des fiches:', error)
@@ -341,11 +341,7 @@ onMounted(async () => {
 <style scoped>
 /* Les styles sont similaires à ceux de Historique.vue, 
    mais avec le préfixe 'payments-' au lieu de 'historique-' */
-.payments-container {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+
 
 /* ... Autres styles similaires à Historique.vue ... */
 </style>

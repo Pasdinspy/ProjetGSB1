@@ -1025,6 +1025,26 @@ body {
   background: #e9ecef;
 }
 
+.historique-btn-edit {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.historique-btn-edit:hover {
+  background: #e9ecef;
+}
+
+.historique-btn-delete {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.historique-btn-delete:hover {
+  background: #e9ecef;
+}
+
 .historique-btn-success {
   background: #28a745;
   color: white;
@@ -1051,6 +1071,171 @@ body {
   color: white;
   font-size: 1.25rem;
   font-weight: 600;
+}
+
+/* Styles pour le modal d'édition */
+.historique-edit-form {
+  padding: 1rem;
+}
+
+.historique-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.historique-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.historique-form-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+.historique-form-group label i {
+  color: #1e3c72;
+}
+
+.historique-form-input {
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.historique-form-input:focus {
+  border-color: #1e3c72;
+  box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+  outline: none;
+}
+
+.historique-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Styles pour le modal de suppression */
+.historique-delete-confirmation {
+  text-align: center;
+  padding: 2rem;
+}
+
+.historique-warning-icon {
+  font-size: 4rem;
+  color: #dc3545;
+  margin-bottom: 1.5rem;
+  animation: warningPulse 2s infinite;
+}
+
+.historique-delete-warning {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+
+.historique-confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Styles des boutons */
+.historique-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.historique-btn-success {
+  background: #28a745;
+  color: white;
+  border: none;
+}
+
+.historique-btn-success:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.historique-btn-danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+}
+
+.historique-btn-danger:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.historique-btn-secondary {
+  background: #6c757d;
+  color: white;
+  border: none;
+}
+
+.historique-btn-secondary:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* Animation pour l'icône d'avertissement */
+@keyframes warningPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Media Queries pour la responsivité */
+@media (max-width: 768px) {
+  .historique-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .historique-form-actions,
+  .historique-confirmation-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .historique-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .historique-delete-confirmation {
+    padding: 1rem;
+  }
 }
 
 .historique-details-content {
