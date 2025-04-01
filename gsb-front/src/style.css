@@ -999,100 +999,167 @@ body {
 /* Actions */
 .historique-fiche-actions {
   display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-/* Boutons */
 .historique-btn {
   padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.875rem;
   font-weight: 500;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.5rem;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.historique-btn i {
-  font-size: 0.875rem;
-}
-
 .historique-btn-view {
-  background: #e9ecef;
+  background: #f8f9fa;
   color: #495057;
+  border: 1px solid #dee2e6;
 }
 
-.historique-btn-edit {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.historique-btn-delete {
-  background: #f8d7da;
-  color: #721c24;
+.historique-btn-view:hover {
+  background: #e9ecef;
 }
 
 .historique-btn-success {
   background: #28a745;
   color: white;
+  border: none;
+}
+
+.historique-btn-success:hover {
+  background: #218838;
+  transform: translateY(-1px);
 }
 
 .historique-btn-secondary {
   background: #6c757d;
   color: white;
+  border: none;
 }
 
-.historique-btn-danger {
-  background: #dc3545;
+.historique-btn-secondary:hover {
+  background: #5a6268;
+}
+
+/* Modal specific styles */
+.historique-modal-title {
   color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
-/* État vide */
-.historique-empty-state {
-  text-align: center;
-  padding: 3rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.historique-empty-state i {
-  font-size: 3rem;
-  color: #6c757d;
-  margin-bottom: 1rem;
-}
-
-/* Modal et détails */
 .historique-details-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  padding: 1rem;
 }
 
 .historique-details-section {
   background: #f8f9fa;
-  padding: 1.5rem;
   border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.historique-details-section h4 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.historique-detail-row {
+  display: flex;
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
+
+.historique-detail-label {
+  width: 150px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.historique-detail-value {
+  flex: 1;
+  color: #2c3e50;
 }
 
 .historique-frais-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
+  margin-top: 1rem;
 }
 
-/* Media Queries */
-@media (max-width: 768px) {
-  .historique-container {
-    padding: 1rem;
-  }
+.historique-frais-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #e9ecef;
+}
 
+.historique-frais-item i {
+  font-size: 1.5rem;
+  color: #1e3c72;
+}
+
+.historique-montant-total {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.historique-confirmation-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.historique-confirmation-icon {
+  font-size: 4rem;
+  color: #28a745;
+  margin-bottom: 1.5rem;
+}
+
+.historique-confirmation-details {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.historique-confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.historique-empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+.historique-empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
   .historique-controls {
     flex-direction: column;
-    gap: 1rem;
   }
 
   .historique-filter-group {
@@ -1108,158 +1175,22 @@ body {
     gap: 1rem;
   }
 
-  .historique-status-badge {
-    align-self: flex-start;
-  }
-}
-
-/* Styles pour les modals de l'historique */
-.historique-modal-title {
-  font-size: 1.5rem;
-  color: #2c3e50;
-  margin: 0;
-}
-
-.historique-details-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  width: 100%;
-}
-
-.historique-details-section {
-  background: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 8px;
-  width: 100%;
-}
-
-.historique-detail-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  width: 100%;
-  gap: 1rem;
-}
-
-
-.historique-detail-label {
-  min-width: 180px;
-  flex-shrink: 0;
-  color: #6c757d;
-  font-weight: 500;
-  text-align: right;
-}
-
-.historique-detail-value {
-  flex: 1; 
-  color: #2c3e50;
-  padding-left: 0.5rem;
-}
-
-
-.historique-frais-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.historique-frais-item {
-  background: white;
-  padding: 1rem;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.historique-form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.historique-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.historique-form-input {
-  padding: 0.5rem;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.historique-form-actions {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-}
-
-.historique-delete-confirmation {
-  text-align: center;
-  padding: 1rem;
-}
-
-.historique-warning-icon {
-  font-size: 3rem;
-  color: #dc3545;
-  margin-bottom: 1rem;
-}
-
-.historique-delete-warning {
-  color: #721c24;
-  margin-top: 0.5rem;
-}
-
-.historique-confirmation-actions {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-/* Media Queries */
-@media (max-width: 768px) {
-  .historique-form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .historique-detail-row {
+  .historique-fiche-body {
     flex-direction: column;
+    gap: 1rem;
     align-items: flex-start;
-    gap: 0.5rem;
   }
-  
-  .historique-detail-label {
-    width: 100%;
-  }
-}
 
-/* Adaptation pour mobile */
-@media (max-width: 768px) {
-  .historique-detail-row {
+  .historique-fiche-actions {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    width: 100%;
   }
 
-  .historique-detail-label {
-    min-width: unset;
+  .historique-btn {
     width: 100%;
-    text-align: left;
-  }
-
-  .historique-detail-value {
-    width: 100%;
-    padding-left: 0;
+    justify-content: center;
   }
 }
-
 
 /*-------------------------------------------------------------------------------------------------------------------------------*/
 
