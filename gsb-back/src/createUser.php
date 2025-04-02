@@ -46,7 +46,7 @@ try {
         $stmt->execute([
             ':vis_id' => $vis_id,
             ':username' => $data['username'],
-            ':password' => $data['password'], // Mot de passe non haché
+            ':password' => $data['password'], 
             ':role' => $data['role']
         ]);
 

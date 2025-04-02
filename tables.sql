@@ -66,17 +66,6 @@ CREATE TABLE `ligne_frais_forfait` (
   FOREIGN KEY (`FOR_ID`) REFERENCES `frais_forfait` (`FOR_ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `ligne_frais_hors_forfait` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `FFR_ID` int(11) NOT NULL,
-  `DTE` date NOT NULL,
-  `LIBELLE` varchar(250) NOT NULL,
-  `MONTANT` decimal(10,2) NOT NULL,
-  `ETA_ID` char(2) NOT NULL,
-  PRIMARY KEY (`ID`),
-  FOREIGN KEY (`ETA_ID`) REFERENCES `etat` (`ETA_ID`),
-  FOREIGN KEY (`FFR_ID`) REFERENCES `fiche_frais` (`FFR_ID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Insertion des données
 INSERT INTO `etat` (`ETA_ID`, `ETA_LIB`) VALUES
